@@ -1,17 +1,21 @@
 package org.jroldan.customerpayment.service;
 
-import org.jroldan.customerpayment.service.matchers.Matcher;
 import org.jroldan.customerpayment.model.Customer;
 import org.jroldan.customerpayment.model.Payment;
+import org.jroldan.customerpayment.service.matchers.Matcher;
+import org.jroldan.customerpayment.service.matchers.impl.AddressMatcher;
+import org.jroldan.customerpayment.service.matchers.impl.CommentMatcher;
+import org.jroldan.customerpayment.service.matchers.impl.IbanMatcher;
+import org.jroldan.customerpayment.service.matchers.impl.NameMatcher;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class PerfectMatcherService {
-    private final Map<String, Matcher> matchers;
+    private final List<Matcher> matchers;
 
-    public PerfectMatcherService(Map<String, Matcher> matchers) {
+    public PerfectMatcherService(List<Matcher> matchers) {
         this.matchers = matchers;
     }
 
@@ -21,18 +25,18 @@ public class PerfectMatcherService {
                 || perfectMatchByCommentAndAddress(customer, payment);
     }
 
-    // iban match
     private boolean perfectMatchByIban(Customer customer, Payment payment) {
-        return matchers.get("ibanMatcher").match(customer, payment);
+        return matchers.stream().filter(matcher -> matcher instanceof IbanMatcher).findFirst().get().match(customer, payment);
+
     }
 
-    // Comment match + name match
     private boolean perfectMatchByCommentAndName(Customer customer, Payment payment) {
-        return matchers.get("commentMatcher").match(customer, payment) && matchers.get("nameMatcher").match(customer, payment);
+        return matchers.stream().filter(matcher -> matcher instanceof CommentMatcher).findFirst().get().match(customer, payment)
+                && matchers.stream().filter(matcher -> matcher instanceof NameMatcher).findFirst().get().match(customer, payment);
     }
 
-    // comment match + address match
     private boolean perfectMatchByCommentAndAddress(Customer customer, Payment payment) {
-        return matchers.get("commentMatcher").match(customer, payment) && matchers.get("addressMatcher").match(customer, payment);
+        return matchers.stream().filter(matcher -> matcher instanceof CommentMatcher).findFirst().get().match(customer, payment)
+                && matchers.stream().filter(matcher -> matcher instanceof AddressMatcher).findFirst().get().match(customer, payment);
     }
 }
