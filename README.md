@@ -13,12 +13,25 @@ customer-payment is a simple API which verifies if our two Customer and Payment 
 - Maven
 
 ## Spring profiles
-- default
-  - Uses MySql driver
-- h2
-  - Uses H2 driver, h2mem database and the data is initialized at startup
+### default
+
+`-Dspring.profiles.active=default`
+
+It expects a MySQL database running at this jdbc:
+`jdbc:mysql://localhost:3306/customer-payment`
+
+Generation script of the schema and data inserts can be found in project path `mysql/script_MySQL_forward_engineering.sql`
+
+
+### H2
+
+`-Dspring.profiles.active=default`
+
+No need of setting up any external database. H2 in memory will be used and data is initialized based on `src/main/resources/data.sql`
 
 ## Data
+Same data is loaded either MySQL or H2 profile.
+
 ### Customer Table
 | ID | FIRST_NAME | LAST_NAME | IBAN_ENCRYPTED*                          | HASH_IBAN*                       | ADDRESS                  | CONTRACT_ID |
 |----|------------|-----------|------------------------------------------|----------------------------------|--------------------------|-------------|
@@ -41,27 +54,17 @@ Tool to encrypt and hash IBAN:
 https://www.md5hashgenerator.com/
 
 ## Installation
-
-### Clone
-Clone this repository to your local machine `https://github.com/javato/customer-payment.git`.
-
-### Import
-Import as a maven project.
-
-### Run locally
-As it is a Spring Boot Application, a way is to execute the main method in the `org.jroldan.customerpayment.CustomerPaymentApplication` class.
-
-## Docker
+### Docker
 Instead of download the source code and run it locally, we have the possibility to run it directly using a Docker image.
 
-### Prerequisites
+#### Prerequisites
 
 In order to run this image you will need docker installed.
 - [Windows](https://docs.docker.com/desktop/windows/)
 - [OS X](https://docs.docker.com/desktop/mac/)
 - [Linux](https://docs.docker.com/desktop/linux/)
 
-### Usage
+#### Usage
 
 We can pull it locally from our public repository:
 
@@ -71,14 +74,28 @@ docker pull dozze/customer-payment:latest
 
 And then run it:
 #### H2 profile
+Simplest way is to directly run it using h2 profile, then we our application will be ready using only this command:
 ```bash
 docker run -e "SPRING_PROFILES_ACTIVE=h2" -p 8080:8080 --name customer-payment -d dozze/customer-payment:latest
 ```
 
-## REST API
+### Building and running source code
+#### Clone
+Clone this repository to your local machine `https://github.com/javato/customer-payment.git`.
 
-### Endpoint
-- Our server is listening for requests at `http://localhost:8080/`
+#### Import
+Import as a maven project.
+
+#### Set up MySQL database (only if h2 profile is not enabled)
+```bash
+docker run --name mysql-jroldan -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:8.0.19`
+```
+
+#### Run locally
+Since it is a Spring Boot Application, we should execute the main method of the `org.jroldan.customerpayment.CustomerPaymentApplication` class.
+
+## REST API
+Our server is listening for requests at `http://localhost:8080/`
 
 ### perfect-match-api
 #### [GET] perfect-match-api
@@ -86,7 +103,7 @@ Request Parameters:
 - customerId: Mandatory
 - paymentId: Mandatory
 
-Url: http://localhost:8080/perfect-match-api?customerId={{customerId}}&paymentId={{paymentId}}
+Url: `http://localhost:8080/perfect-match-api?customerId={{customerId}}&paymentId={{paymentId}}`
 
 Response:
 ResponseEntity<Boolean>
@@ -96,7 +113,7 @@ Response codes:
 - 500: Internal Server Error
 
 Request example:
-http://localhost:8080/perfect-match-api?customerId=2&paymentId=2
+`http://localhost:8080/perfect-match-api?customerId=2&paymentId=2`
 
 ## License
 Released under the Apache License 2.0. See the LICENSE file.
