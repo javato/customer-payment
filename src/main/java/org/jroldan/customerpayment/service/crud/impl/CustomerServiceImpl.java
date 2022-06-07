@@ -1,9 +1,9 @@
-package org.jroldan.customerpayment.service.api.impl;
+package org.jroldan.customerpayment.service.crud.impl;
 
 import org.jroldan.customerpayment.dao.repository.CustomerRepository;
 import org.jroldan.customerpayment.exception.CustomerPaymentException;
 import org.jroldan.customerpayment.model.Customer;
-import org.jroldan.customerpayment.service.api.CustomerService;
+import org.jroldan.customerpayment.service.crud.CustomerService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer findById(Long aLong) throws CustomerPaymentException {
-        throw new UnsupportedOperationException();
+    public Customer findById(Long id) throws CustomerPaymentException {
+        return customerRepository.findById(id).get();
     }
 
     @Override
